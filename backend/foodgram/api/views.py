@@ -80,7 +80,7 @@ class RecipeViewSet(ModelViewSet):
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         buffer = io.StringIO()
-        buffer.write("Список покупок:\n")
+        buffer.write("Список покупок\n")
         ingredients = {}
         shopping = ShoppingList.objects.filter(user=user)
 
