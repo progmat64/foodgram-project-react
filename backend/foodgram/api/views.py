@@ -42,7 +42,7 @@ class RecipeViewSet(ModelViewSet):
         user = self.request.user
 
         if user.is_anonymous:
-            queryset = self.queryset.order_by("-id")
+            queryset = self.queryset
         else:
             queryset = self.queryset.annotate(
                 is_favorited=Exists(
@@ -55,7 +55,7 @@ class RecipeViewSet(ModelViewSet):
                         recipe__pk=OuterRef("pk"), user=user
                     )
                 ),
-            ).order_by("-id")
+            )
         return queryset
 
     @action(detail=True, methods=["post", "delete"])
