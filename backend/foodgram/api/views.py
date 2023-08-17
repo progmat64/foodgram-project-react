@@ -140,7 +140,6 @@ class SubscriptionViewSet(GenericViewSet):
         user = self.request.user
         return (
             Subscribe.objects.filter(user=user)
-            .prefetch_related("author")
             .annotate(recipes_count=Count("author__recipe"))
             .annotate(
                 is_subscribed=Exists(
@@ -149,7 +148,6 @@ class SubscriptionViewSet(GenericViewSet):
                     )
                 )
             )
-            .order_by("-id")
         )
 
     @action(detail=True, methods=("post", "delete"))
