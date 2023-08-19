@@ -91,7 +91,9 @@ class RecipeViewSet(ModelViewSet):
             ingredients[ing_obj] = ingredients.get(ing_obj, 0) + (amount or 0)
 
         for ingredient, amount in ingredients.items():
-            line = f"{ingredient} - {amount} {ingredient.measurement_unit}\n".encode()
+            line = (
+                f"{ingredient} - {amount} {ingredient.measurement_unit}\n"
+                ).encode()
             buffer.write(line)
 
         return buffer
@@ -106,7 +108,7 @@ class RecipeViewSet(ModelViewSet):
         response = HttpResponse(buffer.getvalue(), content_type="text/plain")
         response[
             "Content-Disposition"
-        ] = "attachment; filename='shopping_list.txt'"
+        ] = 'attachment; filename="shopping_list.txt"'
         return response
 
     def add_or_delete_object(self, model, request, pk, delete=False):
