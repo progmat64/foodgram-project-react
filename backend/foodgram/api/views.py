@@ -44,9 +44,7 @@ class RecipeViewSet(ModelViewSet):
             queryset = self.queryset.order_by("-id")
         else:
             queryset = (
-                self.queryset.select_related("author")
-                .prefetch_related("tags", "ingredients")
-                .annotate(
+                self.queryset.annotate(
                     is_favorited=Exists(
                         Favorite.objects.filter(
                             recipe__pk=OuterRef("pk"), user=user
@@ -59,6 +57,8 @@ class RecipeViewSet(ModelViewSet):
                     ),
                 )
                 .order_by("-id")
+                .select_related("author")
+                .prefetch_related("tags", "ingredients")
             )
         return queryset
 
@@ -78,7 +78,7 @@ class RecipeViewSet(ModelViewSet):
 
     def generate_shopping_cart_file(self, shopping_list):
         buffer = io.BytesIO()
-        buffer.write(b"Shopping List\n")
+        buffer.write("Shopping List\n")
         ingredients = {}
 
         recipe_ingredients = RecipeIngredient.objects.filter(

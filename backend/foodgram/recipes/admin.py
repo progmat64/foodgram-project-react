@@ -60,6 +60,11 @@ class RecipeAdmin(admin.ModelAdmin):
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = ("user", "recipe")
 
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.select_related("user", "recipe")
+        return queryset
+
 
 @admin.register(Subscribe)
 class SubscribeAdmin(admin.ModelAdmin):
