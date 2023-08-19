@@ -93,7 +93,7 @@ class RecipeViewSet(ModelViewSet):
         for ingredient, amount in ingredients.items():
             line = (
                 f"{ingredient} - {amount} {ingredient.measurement_unit}\n"
-                ).encode()
+            ).encode()
             buffer.write(line)
 
         return buffer
