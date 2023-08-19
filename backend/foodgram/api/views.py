@@ -108,7 +108,7 @@ class RecipeViewSet(ModelViewSet):
         response = HttpResponse(buffer.getvalue(), content_type="text/plain")
         response[
             "Content-Disposition"
-        ] = 'attachment; filename="shopping_list.txt"'
+        ] = "attachment; filename='shopping_list.txt'"
         return response
 
     def add_or_delete_object(self, model, request, pk, delete=False):
