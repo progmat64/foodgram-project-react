@@ -8,9 +8,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.getenv("SECRET_KEY", "KEY")
 
-DEBUG = True
+DEBUG = os.getenv("DEBUG") == "True"
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1").split(",")
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -22,10 +22,10 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "djoser",
+    "django_filters",
     "api",
     "recipes",
     "users",
-    "django_filters",
 ]
 
 MIDDLEWARE = [
@@ -58,24 +58,16 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "foodgram.wsgi.application"
 
-if DEBUG:
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-        }
+DATABASES = {
+    "default": {
+        "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.postgresql"),
+        "NAME": os.getenv("DB_NAME", "postgres"),
+        "USER": os.getenv("POSTGRES_USER", "postgres"),
+        "PASSWORD": os.getenv("POSTGRES_PASSWORD", "postgres"),
+        "HOST": os.getenv("DB_HOST", "db"),
+        "PORT": os.getenv("DB_PORT", 5432),
     }
-else:
-    DATABASES = {
-        "default": {
-            "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.postgresql"),
-            "NAME": os.getenv("DB_NAME", "postgres"),
-            "USER": os.getenv("POSTGRES_USER", "postgres"),
-            "PASSWORD": os.getenv("POSTGRES_PASSWORD", "postgres"),
-            "HOST": os.getenv("DB_HOST", "db"),
-            "PORT": os.getenv("DB_PORT", "5432"),
-        }
-    }
+}
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -94,7 +86,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = "users.User"
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "ru"
 
 TIME_ZONE = "UTC"
 
@@ -129,9 +121,9 @@ REST_FRAMEWORK = {
 DJOSER = {
     "LOGIN_FIELD": "email",
     "SERIALIZERS": {
-        "user": "users.serializers.CustomUserSerializer",
-        "current_user": "users.serializers.CustomUserSerializer",
-        "user_create": "users.serializers.CustomUserCreateSerializer",
+        "user": "api.serializers.CustomUserSerializer",
+        "current_user": "api.serializers.CustomUserSerializer",
+        "user_create": "api.serializers.CustomUserCreateSerializer",
     },
     "PERMISSIONS": {
         "user_list": ("rest_framework.permissions.AllowAny",),

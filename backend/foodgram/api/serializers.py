@@ -1,11 +1,55 @@
+from djoser.serializers import UserCreateSerializer, UserSerializer
 from drf_extra_fields.fields import Base64ImageField
 from rest_framework import permissions, serializers
+from rest_framework.validators import UniqueValidator
 
 from django.shortcuts import get_object_or_404
 
-from recipes.models import Favorite, Ingredient, Recipe, RecipeIngredient, Tag
+from recipes.models import (Favorite, Ingredient, Recipe, RecipeIngredient,
+                            Subscribe, Tag)
 from users.models import User
-from users.serializers import CustomUserSerializer
+
+
+class CustomUserCreateSerializer(UserCreateSerializer):
+    email = serializers.EmailField(
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+    username = serializers.CharField(
+        validators=[UniqueValidator(queryset=User.objects.all())]
+    )
+
+    class Meta:
+        model = User
+        fields = (
+            "id",
+            "email",
+            "password",
+            "username",
+            "first_name",
+            "last_name",
+        )
+
+
+class CustomUserSerializer(UserSerializer):
+    is_subscribed = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            "email",
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "is_subscribed",
+        )
+
+    def get_is_subscribed(self, obj):
+        user = self.context["request"].user
+        return (
+            not user.is_anonymous
+            and Subscribe.objects.filter(user=user, author=obj.id).exists()
+        )
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -76,9 +120,8 @@ class RecipeSerializer(serializers.ModelSerializer):
         tags = self.initial_data.get("tags")
         if not isinstance(tags, list):
             raise serializers.ValidationError("теги не являются списком")
-        for tag in tags:
-            if not Tag.objects.filter(id=tag).exists():
-                raise serializers.ValidationError("тегов нет")
+        if not Tag.objects.filter(id__in=tags).count() == len(tags):
+            raise serializers.ValidationError("тегов нет")
         data["tags"] = tags
         ingredients = self.initial_data.get("ingredients")
         if not isinstance(ingredients, list):
@@ -91,8 +134,10 @@ class RecipeSerializer(serializers.ModelSerializer):
                 Ingredient, id=ingredient.get("id")
             )
             amount = int(ingredient.get("amount"))
+
             if not isinstance(amount, int) or amount < 1:
                 raise serializers.ValidationError("недопустимое количество")
+
             ingredients_valid.append(
                 {"ingredient": ingredient_object, "amount": amount}
             )
