@@ -43,24 +43,21 @@ class RecipeViewSet(ModelViewSet):
         if user.is_anonymous:
             queryset = self.queryset.order_by("-id")
         else:
-            queryset = (
-                self.queryset.annotate(
-                    is_favorited=Exists(
-                        Favorite.objects.filter(
-                            recipe__pk=OuterRef("pk"), user=user
-                        )
-                    ),
-                    is_in_shopping_cart=Exists(
-                        ShoppingList.objects.filter(
-                            recipe__pk=OuterRef("pk"), user=user
-                        )
-                    ),
-                )
-                .order_by("-id")
-                .select_related("author")
-                .prefetch_related("tags", "ingredients")
-            )
-        return queryset
+            queryset = self.queryset.annotate(
+                is_favorited=Exists(
+                    Favorite.objects.filter(
+                        recipe__pk=OuterRef("pk"), user=user
+                    )
+                ),
+                is_in_shopping_cart=Exists(
+                    ShoppingList.objects.filter(
+                        recipe__pk=OuterRef("pk"), user=user
+                    )
+                ),
+            ).order_by("-id")
+        return queryset.select_related("author").prefetch_related(
+            "tags", "ingredients"
+        )
 
     @action(detail=True, methods=["post", "delete"])
     def favorite(self, request, pk):
@@ -78,7 +75,7 @@ class RecipeViewSet(ModelViewSet):
 
     def generate_shopping_cart_file(self, shopping_list):
         buffer = io.BytesIO()
-        buffer.write("Shopping List\n")
+        buffer.write(b"Shopping List\n")
         ingredients = {}
 
         recipe_ingredients = RecipeIngredient.objects.filter(
@@ -92,7 +89,7 @@ class RecipeViewSet(ModelViewSet):
 
         for ingredient, amount in ingredients.items():
             line = (
-                f"{ingredient} - {amount} {ingredient.measurement_unit}\n"
+                f"{ingredient.name} - {amount} {ingredient.measurement_unit}\n"
             ).encode()
             buffer.write(line)
 

@@ -78,6 +78,9 @@ class RecipeIngredient(models.Model):
         verbose_name="Количество",
     )
 
+    def str(self):
+        return self.ingredient
+
     class Meta:
         unique_together = ("recipe", "ingredient")
         verbose_name = "Ингредиент рецепта"
