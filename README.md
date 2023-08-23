@@ -1,3 +1,12 @@
+# Проект доступен по адресу 
+
+домен: https://recipefeed.didns.ru/
+ip: 84.252.140.33
+
+# Админка
+
+email: a@a.com
+password: a
 # Учебный проект: Foodgram - продуктовый помощник
 
 [![Python](https://img.shields.io/badge/-Python-464641?style=flat-square&logo=Python)](https://www.python.org/)
