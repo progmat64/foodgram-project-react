@@ -3,8 +3,9 @@ name: Foodgram workflow
 on:
   push:
     branches:
+      - main
       - master
-
+# Перечень задач
 jobs:
   tests:
     # Разворачиваем окружение:
