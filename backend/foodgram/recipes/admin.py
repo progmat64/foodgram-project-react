@@ -11,6 +11,7 @@ class IngredientInline(admin.TabularInline):
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = ("name", "color", "slug")
+    search_fields = ("name",)
 
 
 @admin.register(Ingredient)
@@ -59,6 +60,7 @@ class RecipeAdmin(admin.ModelAdmin):
 @admin.register(Favorite)
 class FavoriteAdmin(admin.ModelAdmin):
     list_display = ("user", "recipe")
+    list_filter = ("user", "recipe")
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)

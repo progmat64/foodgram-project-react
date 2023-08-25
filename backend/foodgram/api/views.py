@@ -92,7 +92,6 @@ class RecipeViewSet(ModelViewSet):
                 f"{ingredient.name} - {amount} {ingredient.measurement_unit}\n"
             ).encode()
             buffer.write(line)
-
         return buffer
 
     @action(detail=False, permission_classes=[IsAuthenticated])
